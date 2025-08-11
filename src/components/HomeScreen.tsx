@@ -333,6 +333,43 @@ export function HomeScreen({ onOpenSettings }: HomeScreenProps) {
         </div>
       </div>
 
+      {/* Motor Test */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-center">Motor Test</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            onClick={() => sendDirectionCommand(() => bluetoothService.testLeft(), 'Test Left')}
+            disabled={!isConnected}
+            className="direction-button"
+          >
+            ◄ Vibrate Left
+          </Button>
+          <Button
+            onClick={() => sendDirectionCommand(() => bluetoothService.testRight(), 'Test Right')}
+            disabled={!isConnected}
+            className="direction-button"
+          >
+            Vibrate Right ►
+          </Button>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            onClick={() => sendDirectionCommand(() => bluetoothService.testUTurn(), 'Test Both')}
+            disabled={!isConnected}
+            className="direction-button"
+          >
+            ⇄ Vibrate Both
+          </Button>
+          <Button
+            onClick={() => sendDirectionCommand(() => bluetoothService.stop(), 'Stop')}
+            disabled={!isConnected}
+            className="direction-button"
+          >
+            ⏹ Stop
+          </Button>
+        </div>
+      </div>
+
       {/* SOS Button */}
       <div className="pt-6">
         <Button
