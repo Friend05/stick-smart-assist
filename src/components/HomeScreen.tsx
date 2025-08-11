@@ -104,6 +104,34 @@ export function HomeScreen({ onOpenSettings }: HomeScreenProps) {
     }
   };
 
+  const handleDebugScan = async () => {
+    try {
+      const devices = await bluetoothService.scanForDevices(true, 7000);
+      console.log('All BLE devices:', devices);
+      if (!devices || devices.length === 0) {
+        toast({
+          title: "Scan Complete",
+          description: "No BLE devices found nearby",
+          variant: "destructive"
+        });
+        return;
+      }
+      const list = devices.map((d) => d.name || d.deviceId).slice(0, 5).join(', ');
+      toast({
+        title: `Found ${devices.length} device${devices.length > 1 ? 's' : ''}`,
+        description: list,
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Debug scan failed:', error);
+      toast({
+        title: "Scan Failed",
+        description: "Unable to perform BLE scan",
+        variant: "destructive"
+      });
+    }
+  };
+
   const sendDirectionCommand = async (command: () => Promise<void>, direction: string) => {
     if (!isConnected) {
       toast({
@@ -252,6 +280,13 @@ export function HomeScreen({ onOpenSettings }: HomeScreenProps) {
               className="touch-button-primary"
             >
               {isConnecting ? 'Connecting...' : 'Connect to Smart Stick'}
+            </Button>
+            <Button
+              onClick={handleDebugScan}
+              variant="secondary"
+              className="touch-button"
+            >
+              Debug: Scan all BLE devices
             </Button>
           </div>
         )}

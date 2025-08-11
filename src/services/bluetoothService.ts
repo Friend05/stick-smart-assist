@@ -24,23 +24,34 @@ class BluetoothService {
     }
   }
 
-  async scanForDevices(): Promise<BleDevice[]> {
+  async scanForDevices(any: boolean = false, durationMs: number = 10000): Promise<BleDevice[]> {
     try {
+      const found = new Map<string, BleDevice>();
+
       await BleClient.requestLEScan(
-        { services: [this.SERVICE_UUID] },
-        (result) => {
+        any ? {} : { services: [this.SERVICE_UUID] },
+        (result: any) => {
           console.log('Found device:', result);
+          try {
+            const d: BleDevice | undefined = (result?.device as BleDevice) ??
+              (result?.deviceId ? { deviceId: result.deviceId, name: result.name } as BleDevice : undefined);
+            if (d?.deviceId) {
+              found.set(d.deviceId, d);
+            }
+          } catch (e) {
+            console.warn('Scan parse error:', e);
+          }
         }
       );
 
-      // Stop scanning after 10 seconds
-      setTimeout(async () => {
-        await BleClient.stopLEScan();
-      }, 10000);
+      // Scan for the specified duration, then stop and return unique devices
+      await new Promise((resolve) => setTimeout(resolve, durationMs));
+      await BleClient.stopLEScan();
 
-      return [];
+      return Array.from(found.values());
     } catch (error) {
       console.error('Failed to scan for devices:', error);
+      try { await BleClient.stopLEScan(); } catch {}
       throw error;
     }
   }
